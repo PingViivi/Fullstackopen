@@ -5,11 +5,7 @@ const Person = (props) => {
   return (
     <>
         <div key={person.name}>
-          <strong>
-          {person.id}
-          </strong>
           {person.name} {person.number}
-          
           <button onClick={()=>props.delete(person.id)}>
             Delete
           </button>
