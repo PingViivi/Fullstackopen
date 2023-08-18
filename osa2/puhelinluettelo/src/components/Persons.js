@@ -6,7 +6,7 @@ const Persons = (props) => {
     <>
     {
         props.persons.map((person) => (
-          <Person person={person}/>
+          <Person person={person} delete={props.handleDelete}/>
         ))
       }
     </>

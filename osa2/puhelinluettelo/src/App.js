@@ -1,25 +1,21 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
+import personService from './services/persons'
 
 
-const App = () => {
-  
+const App = () => {  
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
 
   useEffect(()=> {
-    //console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        //console.log('promise fulfilled')
-        setPersons(response.data)
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
   }, [])
-  //console.log('render', persons.length, 'notes')
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -27,20 +23,39 @@ const App = () => {
   const handleNumberChange = (event) => {
     setNewNumber(event.target.value)
   }
+
   const handleSubmit = (event) => {
     event.preventDefault()
     if (persons.some(person => person.name === newName)) {
       alert(`${newName} is already added to phonebook`)
-    } else {
-      const person = {
+    } 
+    else {
+      const personObject = {
         name: newName,
-        number: newNumber
+        number: newNumber,
+        id: persons.length + 1,
       }
-      setPersons(persons.concat(person))
-      setNewName('')
-      setNewNumber('')
+      personService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+      })
     }
   }
+
+  const handleDelete  = id => {
+    const person = persons.find(person => person.id === id)
+    if (window.confirm(`Delete ${person.name}?`)) {
+      personService
+        .deleteObject(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id ))
+        })
+    }
+  }
+
 
   return (
     <div>
@@ -53,7 +68,7 @@ const App = () => {
         newNumber={newNumber}
       />
       <h3>Numbers</h3>
-      <Persons persons={persons}/>
+      <Persons persons={persons} handleDelete={handleDelete}/>
     </div>
   )
 
